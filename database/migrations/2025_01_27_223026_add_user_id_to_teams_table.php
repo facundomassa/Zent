@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('teams', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->foreignId('user_id')->constrained(); // Creador del equipo
-            $table->string('stripe_id')->nullable(); // Para integración con Stripe
-            $table->timestamps();
+        Schema::table('teams', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained('users'); 
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('teams');
+        Schema::table('teams', function (Blueprint $table) {
+            //
+        });
     }
 };

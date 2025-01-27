@@ -46,11 +46,11 @@ class User extends Authenticatable
     public function team() {
         return $this->belongsTo(Team::class);
     }
-    
+
     public function tasks() {
         return $this->belongsToMany(Task::class)->withTimestamps();
     }
-    
+
     public function comments() {
         return $this->hasMany(Comment::class);
     }
