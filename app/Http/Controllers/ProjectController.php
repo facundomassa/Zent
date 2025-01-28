@@ -3,64 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use App\Http\Requests\StoreProjectRequest;
-use App\Http\Requests\UpdateProjectRequest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
-class ProjectController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+class ProjectController extends Controller {
+    // Crear un proyecto
+    public function store(Request $request) {
+        $request->validate(['name' => 'required|string|max:255']);
+
+        Project::create([
+            'name' => $request->name,
+            'team_id' => auth()->user()->team_id,
+        ]);
+
+        return redirect()->back();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreProjectRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Project $project)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProjectRequest $request, Project $project)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Project $project)
-    {
-        //
+    // Eliminar un proyecto
+    public function destroy(Project $project) {
+        $project->delete();
+        return redirect()->back();
     }
 }

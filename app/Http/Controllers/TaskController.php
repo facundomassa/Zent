@@ -3,64 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
-use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
-class TaskController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+class TaskController extends Controller {
+    // Actualizar orden de tareas (drag-and-drop)
+    public function updateOrder(Request $request) {
+        foreach ($request->tasks as $task) {
+            Task::find($task['id'])->update(['order' => $task['order']]);
+        }
+        return response()->json(['success' => true]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTaskRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTaskRequest $request, Task $task)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Task $task)
-    {
-        //
+    // Asignar tarea a un usuario
+    public function assignUser(Request $request, Task $task) {
+        $task->users()->attach($request->user_id);
+        return redirect()->back();
     }
 }

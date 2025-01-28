@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
+use App\Models\Project;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,5 +38,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Equipos
+Route::resource('teams', TeamController::class)->middleware(['auth', 'verified']);
+
+// Proyectos
+Route::post('/projects', [ProjectController::class, 'store'])->middleware(['auth', 'verified']);
+Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->middleware(['auth', 'verified']);
+Route::get('/projects/{project}', function (Project $project) {
+    return Inertia::render('Projects/Show', [
+        'project' => $project->load('tasks'),
+    ]);
+})->middleware(['auth', 'verified']);
+
+// Tareas
+Route::post('/tasks/update-order', [TaskController::class, 'updateOrder'])->middleware(['auth', 'verified']);
+Route::post('/tasks/{task}/assign', [TaskController::class, 'assignUser'])->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';
