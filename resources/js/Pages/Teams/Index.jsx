@@ -8,7 +8,7 @@ export default function TeamIndex({ teams }) {
             <div className="max-w-2xl mx-auto">
                 <h1 className="text-2xl font-bold mb-6">Mis Equipos</h1>
                 <div className="space-y-4">
-                    {teams.map((team) => (
+                    {/* {teams.map((team) => (
                         <Link 
                             key={team.id} 
                             href={`/teams/${team.id}`}
@@ -16,7 +16,7 @@ export default function TeamIndex({ teams }) {
                         >
                             {team.name}
                         </Link>
-                    ))}
+                    ))} */}
                 </div>
             </div>
         </AppLayout>

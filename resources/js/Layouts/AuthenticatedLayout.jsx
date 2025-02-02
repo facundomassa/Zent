@@ -1,45 +1,44 @@
+import { Head, Link, usePage  } from '@inertiajs/react';
 import { useState } from 'react';
+import { Inertia } from '@inertiajs/inertia';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
 
-export default function Authenticated({ user, header, children }) {
+export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const { auth } = usePage().props;
 
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
-                                </NavLink>
-                            </div>
+                        {/* Logo */}
+                        <div className="flex items-center">
+                            <Link href="/">
+                                <ApplicationLogo className="h-8 w-auto text-gray-500" />
+                            </Link>
                         </div>
 
-                        <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
+                        {/* Menú Desktop */}
+                        <div className="hidden sm:flex sm:items-center space-x-8">
+                            <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                Dashboard
+                            </NavLink>
+
+                            {/* Dropdown de Usuario */}
+                            <div className="ml-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition"
                                             >
-                                                {user.name}
-
+                                                {auth.user?.name}
                                                 <svg
-                                                    className="ms-2 -me-0.5 h-4 w-4"
+                                                    className="ml-2 -mr-0.5 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     viewBox="0 0 20 20"
                                                     fill="currentColor"
@@ -55,19 +54,24 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
+                                        <Dropdown.Link href={route('profile.edit')}>Perfil</Dropdown.Link>
+                                        <Dropdown.Link
+                                            onClick={() => Inertia.post(route('logout'))}
+                                            method="post"
+                                            as="button"
+                                        >
+                                            Cerrar Sesión
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
                         </div>
 
-                        <div className="-me-2 flex items-center sm:hidden">
+                        {/* Menú Mobile */}
+                        <div className="-mr-2 flex items-center sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
+                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition"
                             >
                                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
@@ -90,32 +94,49 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
 
+                {/* Menú Mobile (contenido colapsable) */}
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
+                        <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
-                        </ResponsiveNavLink>
+                        </NavLink>
+                        <NavLink href={route('team.projects.index',{ team: auth.user?.team_id })} active={route().current('team.projects.index')}>
+                            Proyectos
+                        </NavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
                         <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
+                            <div className="text-base font-medium text-gray-800">{auth.user.name}</div>
+                            <div className="text-sm font-medium text-gray-500">{auth.user.email}</div>
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
+                            <Dropdown.Link
+                                href={route('profile.edit')}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Perfil
+                            </Dropdown.Link>
+                            <Dropdown.Link
+                                onClick={() => Inertia.post(route('logout'))}
+                                method="post"
+                                as="button"
+                                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                            >
+                                Cerrar Sesión
+                            </Dropdown.Link>
                         </div>
                     </div>
                 </div>
             </nav>
 
+            {/* Contenido principal */}
             {header && (
                 <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
+                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-xl font-semibold text-gray-900">{header}</h2>
+                    </div>
                 </header>
             )}
 
