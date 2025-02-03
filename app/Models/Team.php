@@ -22,4 +22,9 @@ class Team extends Model
     public function subscription() {
         return $this->hasOne(Subscription::class);
     }
+
+    public function isAdmin(User $user)
+    {
+        return $this->user_id === $user->id;
+    }
 }

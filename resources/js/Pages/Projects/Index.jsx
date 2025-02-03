@@ -1,63 +1,80 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import EditProjectModal from '@/Components/EditProjectModal';
+import CreateProjectModal from '@/Components/CreateProjectModal';
 
 export default function ProjectIndex({ team, projects }) {
     const { auth } = usePage().props;
+    const [editingProject, setEditingProject] = useState(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     return (
         <AuthenticatedLayout>
             <Head title={`Proyectos - ${team.name}`} />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-8">
+                    <div className="flex items-center justify-between mb-8">
                         <div>
                             <h1 className="text-2xl font-bold">Proyectos de {team.name}</h1>
                             <p className="mt-2 text-gray-600">
                                 {projects.length} proyectos en total
                             </p>
                         </div>
-                        <Link
-                            href={route('team.projects.store', team.id)}
-                            method="post"
-                            as="button"
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            data={{ name: 'Nuevo Proyecto' }} // Datos iniciales para el modal
+                        <button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
                         >
                             Nuevo Proyecto
-                        </Link>
+                        </button>
                     </div>
 
                     {/* Lista de Proyectos */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {projects.map((project) => (
                             <div
                                 key={project.id}
-                                className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+                                className="p-6 transition-shadow bg-white rounded-lg shadow hover:shadow-md"
                             >
                                 <Link
                                     href={route('projects.show', project.id)}
                                     className="block"
                                 >
-                                    <h3 className="text-lg font-semibold mb-2">
+                                    <h3 className="mb-2 text-lg font-semibold">
                                         {project.name}
                                     </h3>
-                                    <p className="text-gray-600 text-sm mb-4">
+                                    <p className="mb-4 text-sm text-gray-600">
                                         {project.description || 'Sin descripción'}
                                     </p>
                                 </Link>
 
-                                {/* Solo el admin puede eliminar */}
-                                {team.is_admin && (
-                                    <div className="mt-4 flex justify-end">
+                                {/* Solo el admin puede eliminar y editar */}
+                                {team.user_id === auth.user.id && (
+                                    <div className="flex justify-end gap-2 mt-4">
+                                        <button
+                                            onClick={() => {setEditingProject(project)}}
+                                            className="text-sm text-blue-500 hover:text-blue-700"
+                                        >
+                                            Editar
+                                        </button>
+                                        {editingProject?.id === project.id && (
+                                        <EditProjectModal
+                                            key={project.id}
+                                            team={team}
+                                            project={editingProject}
+                                            isOpen={!!editingProject}
+                                            onClose={() => setEditingProject(null)}
+                                        />
+                                        )}
                                         <Link
                                             href={route('team.projects.destroy', {
                                                 team: team.id,
                                                 project: project.id
                                             })}
                                             method="delete"
-                                            className="text-red-500 hover:text-red-700 text-sm"
+                                            className="text-sm text-red-500 hover:text-red-700"
                                             onBefore={() => confirm('¿Seguro que quieres eliminar este proyecto?')}
                                         >
                                             Eliminar
@@ -67,8 +84,15 @@ export default function ProjectIndex({ team, projects }) {
                             </div>
                         ))}
                     </div>
+
+                    
                 </div>
             </div>
+            <CreateProjectModal
+                team={team}
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+            />
         </AuthenticatedLayout>
     );
 }

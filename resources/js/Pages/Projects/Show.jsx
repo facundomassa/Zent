@@ -41,9 +41,9 @@ export default function ProjectShow() {
             <Head title={project.name} />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-8">
+                    <div className="flex items-center justify-between mb-8">
                         <div>
                             <h1 className="text-2xl font-bold">{project.name}</h1>
                             <p className="mt-2 text-gray-600">{project.description}</p>
@@ -58,8 +58,8 @@ export default function ProjectShow() {
                     </div>
 
                     {/* Formulario de nueva tarea */}
-                    <form onSubmit={handleSubmit} className="mb-8 bg-white p-6 rounded-lg shadow">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <form onSubmit={handleSubmit} className="p-6 mb-8 bg-white rounded-lg shadow">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div>
                                 <input
                                     type="text"
@@ -69,7 +69,7 @@ export default function ProjectShow() {
                                     className="w-full border-gray-300 rounded"
                                     required
                                 />
-                                {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+                                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
                             </div>
 
                             <div>
@@ -80,7 +80,7 @@ export default function ProjectShow() {
                                     placeholder="Descripcion"
                                     className="w-full border-gray-300 rounded"
                                 />
-                                {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+                                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
                             </div>
 
                             <div>
@@ -97,7 +97,7 @@ export default function ProjectShow() {
                                     multiple
                                     value={data.assignees}
                                     onChange={(e) => setData('assignees', Array.from(e.target.selectedOptions, option => option.value))}
-                                    className="w-full border-gray-300 rounded h-10"
+                                    className="w-full h-10 border-gray-300 rounded"
                                 >
                                     {team.users.map(user => (
                                         <option key={user.id} value={user.id}>
@@ -110,7 +110,7 @@ export default function ProjectShow() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                                className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
                             >
                                 Crear Tarea
                             </button>
@@ -136,14 +136,14 @@ export default function ProjectShow() {
                                                 <div
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
-                                                    className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow"
+                                                    className="p-4 transition-shadow bg-white rounded-lg shadow hover:shadow-md"
                                                 >
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-2 mb-2">
                                                                 <span
                                                                     {...provided.dragHandleProps}
-                                                                    className="text-gray-400 hover:text-gray-600 cursor-move"
+                                                                    className="text-gray-400 cursor-move hover:text-gray-600"
                                                                 >
                                                                     ☰
                                                                 </span>

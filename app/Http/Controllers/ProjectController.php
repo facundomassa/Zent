@@ -31,7 +31,7 @@ class ProjectController extends Controller
         // Validar permisos y datos
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string|max:500'
         ]);
 
         if (!$team->users->contains(auth()->id())) {
@@ -44,8 +44,7 @@ class ProjectController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        return redirect()->route('team.projects.index', $team)
-            ->with('success', 'Proyecto creado exitosamente');
+        return back()->with('success', 'Proyecto creado exitosamente');
     }
 
     // Eliminar proyecto
@@ -75,5 +74,23 @@ class ProjectController extends Controller
             'team' => $team,
             'users' => $team->users
         ]);
+    }
+
+    public function update(Request $request, Team $team, Project $project)
+    {
+        // Verificar permisos (solo admin del equipo puede editar)
+        if (!$team->isAdmin(auth()->user())) {
+            abort(403, 'Solo los administradores pueden editar proyectos');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500'
+        ]);
+
+        $project->update($validated);
+
+        return redirect()->route('team.projects.index', $team)
+            ->with('success', 'Proyecto actualizado correctamente');
     }
 }

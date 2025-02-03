@@ -56,6 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->name('team.projects.index');
         Route::post('/', [ProjectController::class, 'store'])->name('team.projects.store');
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('team.projects.destroy');
+        Route::put('/{project}', [ProjectController::class, 'update'])->name('team.projects.update');
     });
 
     // Tareas (dentro de un proyecto)

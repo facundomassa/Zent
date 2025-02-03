@@ -19,4 +19,9 @@ class TeamPolicy
     {
         return $team->users->contains($user->id);
     }
+
+    public function updateProject(User $user, Team $team)
+    {
+        return $team->isAdmin($user);
+    }
 }
