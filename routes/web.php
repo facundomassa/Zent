@@ -67,7 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/', [TaskController::class, 'store'])->name('tasks.store');
             Route::put('/{task}', [TaskController::class, 'update'])->name('tasks.update');
             Route::delete('/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-            Route::post('/reorder', [TaskController::class, 'updateOrder'])->name('tasks.reorder');
+            Route::post('/reorder', [TaskController::class, 'reorder'])->name('tasks.reorder');
             
             // Comentarios
             Route::prefix('{task}/comments')->group(function () {

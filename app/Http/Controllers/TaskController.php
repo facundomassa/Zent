@@ -2,22 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
-class TaskController extends Controller {
-    // Actualizar orden de tareas (drag-and-drop)
-    public function updateOrder(Request $request) {
-        foreach ($request->tasks as $task) {
-            Task::find($task['id'])->update(['order' => $task['order']]);
-        }
-        return response()->json(['success' => true]);
+class TaskController extends Controller
+{
+    public function store(Project $project, Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'due_date' => 'nullable|date',
+            'assignees' => 'array'
+        ]);
+
+        $task = DB::transaction(function () use ($project, $request) {
+            $task = $project->tasks()->create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'due_date' => $request->due_date,
+                'order' => $project->tasks()->count() + 1
+            ]);
+
+            $task->users()->sync($request->assignees);
+            
+            return $task;
+        });
+
+        return back()->with('success', 'Tarea creada');
     }
 
-    // Asignar tarea a un usuario
-    public function assignUser(Request $request, Task $task) {
-        $task->users()->attach($request->user_id);
-        return redirect()->back();
+    public function destroy(Project $project, Task $task)
+    {
+        abort_unless($task->project_id === $project->id, 404);
+        
+        $task->delete();
+        return back()->with('success', 'Tarea eliminada');
+    }
+
+    public function reorder(Project $project, Request $request)
+    {
+        $request->validate([
+            'tasks' => 'required|array',
+            'tasks.*.id' => 'required|exists:tasks,id',
+            'tasks.*.order' => 'required|integer'
+        ]);
+        
+        DB::transaction(function () use ($request) {
+            collect($request->tasks)->each(function ($taskData) {
+                Task::where('id', $taskData['id'])->update(['order' => $taskData['order']]);
+            });
+        });
+
+        return response()->json(['status' => 'success']);
     }
 }
