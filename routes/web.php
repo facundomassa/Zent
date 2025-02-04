@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Rutas para tareas
         Route::prefix('tasks')->group(function () {
+            Route::get('/{task}', [TaskController::class, 'show'])->name('tasks.show');
             Route::post('/', [TaskController::class, 'store'])->name('tasks.store');
             Route::put('/{task}', [TaskController::class, 'update'])->name('tasks.update');
             Route::delete('/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
@@ -73,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Comentarios
             Route::prefix('{task}/comments')->group(function () {
                 Route::post('/', [CommentController::class, 'store'])->name('comments.store');
+                Route::delete('/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
             });
         });
     });

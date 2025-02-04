@@ -1,5 +1,5 @@
 import { Head, Link, usePage  } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState , useEffect} from 'react';
 import { Inertia } from '@inertiajs/inertia';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
@@ -8,33 +8,59 @@ import NavLink from '@/Components/NavLink';
 export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const { auth } = usePage().props;
-
+    useEffect(() => {
+        console.log('Inicializando Echo...');
+        
+        const pusher = window.Echo.connector.pusher;
+        
+        // Eventos de conexión
+        pusher.connection.bind('connecting', () => {
+            console.log('Conectando...');
+        });
+        
+        pusher.connection.bind('connected', () => {
+            console.log('✅ Conectado a WebSockets');
+        });
+        
+        pusher.connection.bind('unavailable', () => {
+            console.error('❌ Servidor no disponible');
+        });
+        
+        pusher.connection.bind('failed', () => {
+            console.error('❌ Conexión fallida');
+        });
+        
+        pusher.connection.bind('disconnected', () => {
+            console.warn('⚠️ Desconectado');
+        });
+    
+    }, []);
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         {/* Logo */}
                         <div className="flex items-center">
                             <Link href="/">
-                                <ApplicationLogo className="h-8 w-auto text-gray-500" />
+                                <ApplicationLogo className="w-auto h-8 text-gray-500" />
                             </Link>
                         </div>
 
                         {/* Menú Desktop */}
-                        <div className="hidden sm:flex sm:items-center space-x-8">
+                        <div className="hidden space-x-8 sm:flex sm:items-center">
                             <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                 Dashboard
                             </NavLink>
 
                             {/* Dropdown de Usuario */}
-                            <div className="ml-3 relative">
+                            <div className="relative ml-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition"
+                                                className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none"
                                             >
                                                 {auth.user?.name}
                                                 <svg
@@ -68,12 +94,12 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         {/* Menú Mobile */}
-                        <div className="-mr-2 flex items-center sm:hidden">
+                        <div className="flex items-center -mr-2 sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition"
+                                className="inline-flex items-center justify-center p-2 text-gray-400 transition rounded-md hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500"
                             >
-                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
                                         className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
                                         strokeLinecap="round"
@@ -122,7 +148,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 onClick={() => Inertia.post(route('logout'))}
                                 method="post"
                                 as="button"
-                                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                                className="block w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100"
                             >
                                 Cerrar Sesión
                             </Dropdown.Link>
@@ -134,7 +160,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* Contenido principal */}
             {header && (
                 <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
                         <h2 className="text-xl font-semibold text-gray-900">{header}</h2>
                     </div>
                 </header>

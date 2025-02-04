@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller
 {
@@ -16,7 +18,7 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'assignees' => 'array'
         ]);
-
+        dd('jola');
         $task = DB::transaction(function () use ($project, $request) {
             $task = $project->tasks()->create([
                 'title' => $request->title,
@@ -56,5 +58,32 @@ class TaskController extends Controller
         });
 
         return response()->json(['status' => 'success']);
+    }
+
+    // Ver una tarea
+    public function show(Project $project, Task $task)
+    {
+        // Verificar permisos
+        $team = $project->team;
+        
+        if (!Gate::allows('access-team', $team)) {
+            abort(403, 'No tienes acceso a esta tarea');
+        }
+
+        // Cargar relaciones necesarias
+        $task->load([
+            'comments' => function($query) {
+                $query->latest()->with('user:id,name,avatar_url');
+            },
+            'users:id,name',
+            'project.team'
+        ]);
+
+        return Inertia::render('Tasks/Show', [
+            'task' => $task,
+            'auth' => [
+                'user' => auth()->user()->only('id', 'name', 'email', 'team_id')
+            ]
+        ]);
     }
 }
