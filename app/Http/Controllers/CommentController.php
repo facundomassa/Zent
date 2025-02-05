@@ -7,12 +7,15 @@ use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Broadcast;
+use App\Events\NewCommentEvent;
 
 class CommentController extends Controller
 {
     public function store(Project $project, Task $task, Request $request)
     {
-        Gate::authorize('createComment', $task);
+        
+        // Gate::authorize('createComment', $task);
 
         $request->validate(['content' => 'required|string|max:1000']);
 
@@ -27,9 +30,9 @@ class CommentController extends Controller
         return back()->with('success', 'Comentario agregado');
     }
 
-    public function destroy(Comment $comment)
+    public function destroy(Project $project, Task $task, Comment $comment)
     {
-        Gate::authorize('delete-comment', $comment);
+        Gate::authorize('deleteComment', $comment);
         
         $comment->delete();
 

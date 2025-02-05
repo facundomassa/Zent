@@ -73,7 +73,7 @@ class TaskController extends Controller
         // Cargar relaciones necesarias
         $task->load([
             'comments' => function($query) {
-                $query->latest()->with('user:id,name,avatar_url');
+                $query->latest()->with('user:id,name');
             },
             'users:id,name',
             'project.team'

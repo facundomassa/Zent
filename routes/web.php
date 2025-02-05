@@ -36,7 +36,7 @@ Route::get('/', function () {
 });
 
 // Rutas autenticadas
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['web', 'auth', 'verified'])->group(function () {
     
     //Dashboard principal
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

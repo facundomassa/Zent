@@ -8,14 +8,19 @@ use Illuminate\Auth\Access\Response;
 
 class CommentPolicy
 {
-    public function create(User $user, Task $task)
+    public function __construct()
     {
-        return $task->project->team->users->contains($user->id)
+        //
+    }
+
+    public function createComment(User $user, Task $task)
+    {
+        return $task->project->team->users->contains(auth()->id())
             ? Response::allow()
             : Response::deny('No perteneces a este equipo');
     }
 
-    public function delete(User $user, Comment $comment)
+    public function deleteComment(User $user, Comment $comment)
     {
         return $comment->user_id === $user->id
             ? Response::allow()

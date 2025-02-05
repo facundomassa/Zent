@@ -18,7 +18,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('task.{taskId}', function ($user, $taskId) {
-    return $user->teams()
+    return $user->team()
         ->whereHas('projects.tasks', fn($q) => $q->where('id', $taskId))
         ->exists();
 });

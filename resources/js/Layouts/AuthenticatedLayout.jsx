@@ -8,33 +8,7 @@ import NavLink from '@/Components/NavLink';
 export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const { auth } = usePage().props;
-    useEffect(() => {
-        console.log('Inicializando Echo...');
-        
-        const pusher = window.Echo.connector.pusher;
-        
-        // Eventos de conexión
-        pusher.connection.bind('connecting', () => {
-            console.log('Conectando...');
-        });
-        
-        pusher.connection.bind('connected', () => {
-            console.log('✅ Conectado a WebSockets');
-        });
-        
-        pusher.connection.bind('unavailable', () => {
-            console.error('❌ Servidor no disponible');
-        });
-        
-        pusher.connection.bind('failed', () => {
-            console.error('❌ Conexión fallida');
-        });
-        
-        pusher.connection.bind('disconnected', () => {
-            console.warn('⚠️ Desconectado');
-        });
     
-    }, []);
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">

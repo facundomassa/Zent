@@ -20,9 +20,14 @@ class TaskPolicy
         return $task->project->team->users->contains($user->id);
     }
 
-    public function createComment(User $user, Task $task)
-    {
-        // Verificar que el usuario pertenezca al equipo del proyecto
-        return $task->project->team->users->contains($user->id);
-    }
+    // public function createComment(User $user, Task $task)
+    // {
+    //     // Verificar que el usuario pertenezca al equipo del proyecto
+    //     return $task->project->team->users->contains($user->id);
+    // }
+
+    // public function deleteComment(User $user, Comment $comment)
+    // {
+    //     return $comment->user_id === $user->id;
+    // }
 }

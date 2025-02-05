@@ -11,6 +11,33 @@ export default function TaskShow({ task }) {
     // Estado local para los comentarios
     const [comments, setComments] = useState(task.comments);
 
+    useEffect(() => {
+            console.log('Inicializando Echo...');
+            
+            const pusher = window.Echo.connector.pusher;
+            
+            // Eventos de conexión
+            pusher.connection.bind('connecting', () => {
+                console.log('Conectando...');
+            });
+            
+            pusher.connection.bind('connected', () => {
+                console.log('✅ Conectado a WebSockets');
+            });
+            
+            pusher.connection.bind('unavailable', () => {
+                console.error('❌ Servidor no disponible');
+            });
+            
+            pusher.connection.bind('failed', () => {
+                console.error('❌ Conexión fallida');
+            });
+            
+            pusher.connection.bind('disconnected', () => {
+                console.warn('⚠️ Desconectado');
+            });
+        
+        }, []);
     // Configurar Echo para actualizaciones en tiempo real
     useEffect(() => {
         window.Echo.private(`task.${task.id}`)
@@ -24,14 +51,17 @@ export default function TaskShow({ task }) {
         return () => {
             window.Echo.leave(`task.${task.id}`);
         };
-    }, []);
+    }, [task.id]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log(`Enviando comentario... ${task.project_id} ${task.id} ${data.content}`);
         router.post(route('comments.store', {
             project: task.project_id, 
             task: task.id            
-        }), {
+        }),{
+            content: data.content
+        }, {
             preserveScroll: true,
             onSuccess: () => reset()
         });
@@ -62,11 +92,6 @@ export default function TaskShow({ task }) {
                         {comments.map(comment => (
                             <div key={comment.id} className="pl-4 border-l-4 border-blue-500">
                                 <div className="flex items-start gap-3">
-                                    <img 
-                                        src={comment.user.avatar_url} 
-                                        className="w-10 h-10 rounded-full" 
-                                        alt={comment.user.name}
-                                    />
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="font-medium">{comment.user.name}</span>
@@ -76,7 +101,7 @@ export default function TaskShow({ task }) {
                                             {comment.user_id === auth.user.id && (
                                                 <Link
                                                     method="delete"
-                                                    href={route('comments.destroy', comment.id)}
+                                                    href={route('comments.destroy', [task.project_id, task.id, comment.id])}
                                                     className="text-sm text-red-500 hover:text-red-700"
                                                 >
                                                     Eliminar
