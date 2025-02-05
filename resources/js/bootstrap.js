@@ -23,15 +23,15 @@ window.Pusher = Pusher;
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
-    wsHost: import.meta.env.VITE_PUSHER_HOST,
-    wsPort: import.meta.env.VITE_PUSHER_PORT,
-    forceTLS: false,
-    disableStats: true,
+    wsHost: import.meta.env.VITE_PUSHER_HOST || window.location.hostname,
+    wsPort: import.meta.env.VITE_PUSHER_PORT || 6001,
+    forceTLS: true,
     enabledTransports: ['ws', 'wss'],
     authEndpoint: '/broadcasting/auth',
     auth: {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
         }
-    }
+    },
+    cluster:import.meta.env.VITE_PUSHER_APP_CLUSTER 
 });
