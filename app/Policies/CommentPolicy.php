@@ -13,14 +13,14 @@ class CommentPolicy
         //
     }
 
-    public function createComment(User $user, Task $task)
+    public function createComment(User $user, Task $task) : Response
     {
-        return $task->project->team->users->contains(auth()->id())
+        return $task->project->team->users->contains($user->id)
             ? Response::allow()
             : Response::deny('No perteneces a este equipo');
     }
 
-    public function deleteComment(User $user, Comment $comment)
+    public function deleteComment(User $user, Comment $comment) : Response
     {
         return $comment->user_id === $user->id
             ? Response::allow()

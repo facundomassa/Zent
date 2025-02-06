@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Project;
 use App\Models\Task;
+use App\Policies\CommentPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Broadcast;
 use App\Events\NewCommentEvent;
+use App\Events\CommentDeletedEvent;
 
 class CommentController extends Controller
 {
@@ -23,7 +25,7 @@ class CommentController extends Controller
             'content' => $request->content,
             'user_id' => auth()->id()
         ]);
-
+        
         // Disparar evento para WebSocket
         broadcast(new NewCommentEvent($comment))->toOthers();
 
@@ -37,7 +39,7 @@ class CommentController extends Controller
         $comment->delete();
 
         // Disparar evento para WebSocket
-        broadcast(new CommentDeletedEvent($comment->id))->toOthers();
+        broadcast(new CommentDeletedEvent($comment->id, $task->id))->toOthers();    
 
         return back()->with('success', 'Comentario eliminado');
     }

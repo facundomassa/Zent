@@ -138,15 +138,7 @@ export default function ProjectShow() {
                                                     {...provided.draggableProps}
                                                     className="p-4 transition-shadow bg-white rounded-lg shadow hover:shadow-md"
                                                 >
-                                                    <Link
-                                                        href={route('tasks.show', [project.id, task.id])}
-                                                        className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                                        </svg>
-                                                        {task.comments_count}
-                                                    </Link>
+                                                    
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-2 mb-2">
@@ -160,6 +152,15 @@ export default function ProjectShow() {
                                                             </div>
                                                             
                                                             <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                                <Link
+                                                                    href={route('tasks.show', [project.id, task.id])}
+                                                                    className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                                                    </svg>
+                                                                    {task.comments_count}
+                                                                </Link>
                                                                 {task.due_date && (
                                                                     <span>
                                                                         📅 {new Date(task.due_date).toLocaleDateString()}

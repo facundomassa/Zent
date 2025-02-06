@@ -12,40 +12,24 @@ export default function TaskShow({ task }) {
     const [comments, setComments] = useState(task.comments);
 
     useEffect(() => {
-            console.log('Inicializando Echo...');
-            
-            const pusher = window.Echo.connector.pusher;
-            
-            // Eventos de conexión
-            pusher.connection.bind('connecting', () => {
-                console.log('Conectando...');
-            });
-            
-            pusher.connection.bind('connected', () => {
-                console.log('✅ Conectado a WebSockets');
-            });
-            
-            pusher.connection.bind('unavailable', () => {
-                console.error('❌ Servidor no disponible');
-            });
-            
-            pusher.connection.bind('failed', () => {
-                console.error('❌ Conexión fallida');
-            });
-            
-            pusher.connection.bind('disconnected', () => {
-                console.warn('⚠️ Desconectado');
-            });
+        console.log('Inicializando Echo...');
         
-        }, []);
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+            console.log('Conectado a WebSockets!');
+        });
+    }, []);
     // Configurar Echo para actualizaciones en tiempo real
     useEffect(() => {
         window.Echo.private(`task.${task.id}`)
             .listen('NewComment', (e) => {
+                console.log('NewComment', e);
                 setComments(prev => [...prev, e.comment]);
+                
             })
             .listen('CommentDeleted', (e) => {
+                console.log('CommentDeleted', e);
                 setComments(prev => prev.filter(c => c.id !== e.commentId));
+                
             });
 
         return () => {
@@ -101,6 +85,7 @@ export default function TaskShow({ task }) {
                                             {comment.user_id === auth.user.id && (
                                                 <Link
                                                     method="delete"
+                                                    as="button"
                                                     href={route('comments.destroy', [task.project_id, task.id, comment.id])}
                                                     className="text-sm text-red-500 hover:text-red-700"
                                                 >
@@ -123,6 +108,7 @@ export default function TaskShow({ task }) {
                             value={data.content}
                             onChange={(e) => setData('content', e.target.value)}
                             placeholder="Escribe un comentario..."
+                            as="textarea"
                             className="w-full h-32 p-4 border rounded-lg focus:ring-2 focus:ring-blue-500"
                             required
                         />
@@ -130,6 +116,7 @@ export default function TaskShow({ task }) {
                             <button
                                 type="submit"
                                 disabled={processing}
+                                as="button"
                                 className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:opacity-50"
                             >
                                 {processing ? 'Enviando...' : 'Comentar'}

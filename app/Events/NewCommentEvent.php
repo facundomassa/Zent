@@ -17,7 +17,7 @@ class NewCommentEvent implements ShouldBroadcast
 
     public function __construct(Comment $comment)
     {
-        $this->comment = $comment->load('user');
+        $this->comment = $comment;
     }
 
     public function broadcastOn()
@@ -30,5 +30,10 @@ class NewCommentEvent implements ShouldBroadcast
         return [
             'comment' => $this->comment
         ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'NewComment';
     }
 }

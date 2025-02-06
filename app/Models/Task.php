@@ -18,6 +18,10 @@ class Task extends Model
         'project_id',
     ];
 
+    public function comments_count() {
+        return $this->comments()->count();
+    }
+
     public function project() {
         return $this->belongsTo(Project::class);
     }
