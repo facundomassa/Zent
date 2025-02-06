@@ -1,6 +1,8 @@
 import { Head, Link, usePage  } from '@inertiajs/react';
 import { useState , useEffect} from 'react';
+import { Toaster } from 'react-hot-toast';
 import { Inertia } from '@inertiajs/inertia';
+import HandleFlashMessages from '@/Components/HandleFlashMessages';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
@@ -11,6 +13,26 @@ export default function AuthenticatedLayout({ header, children }) {
     
     return (
         <div className="min-h-screen bg-gray-100">
+            <HandleFlashMessages />
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    className: 'bg-white border shadow-lg',
+                    duration: 4000,
+                    success: {
+                        iconTheme: {
+                            primary: '#3B82F6',
+                            secondary: 'white',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#EF4444',
+                            secondary: 'white',
+                        },
+                    },
+                }}
+            />
             <nav className="bg-white border-b border-gray-100">
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">

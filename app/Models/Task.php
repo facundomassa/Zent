@@ -18,7 +18,9 @@ class Task extends Model
         'project_id',
     ];
 
-    public function comments_count() {
+    protected $appends = ['comments_count'];
+
+    public function getCommentsCountAttribute() {
         return $this->comments()->count();
     }
 

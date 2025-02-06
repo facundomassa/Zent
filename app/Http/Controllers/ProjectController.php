@@ -69,7 +69,9 @@ class ProjectController extends Controller
 
         return Inertia::render('Projects/Show', [
             'project' => $project->load(['tasks' => function($query) {
-                $query->orderBy('order')->with('users');
+                $query->withCount('comments')
+                ->with('users', 'comments')
+                ->orderBy('order');
             }]),
             'team' => $team,
             'users' => $team->users

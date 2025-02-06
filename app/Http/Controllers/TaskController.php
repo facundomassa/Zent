@@ -57,7 +57,13 @@ class TaskController extends Controller
             });
         });
 
-        return response()->json(['status' => 'success']);
+        // Devolver las tareas actualizadas con el nuevo orden
+        return response()->json([
+            'tasks' => Task::where('project_id', $project->id)
+                ->orderBy('order')
+                ->with('users')
+                ->get()
+        ]);
     }
 
     // Ver una tarea

@@ -1,9 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { motion } from 'framer-motion';
 
 export default function ProjectShow() {
-    const { project, team, auth } = usePage().props;
+    const { project: initialProject, team, auth } = usePage().props;
+    const [project, setProject] = useState(initialProject);
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         description: '',
@@ -17,23 +20,42 @@ export default function ProjectShow() {
             preserveScroll: true,
             onSuccess: () => setData({ title: '', description: '', due_date: '', assignees: [] })
         });
+        setProject(updatedProject); 
     };
 
-    const handleDragEnd = (result) => {
+    const handleDragEnd = async (result) => {
         if (!result.destination) return;
+    
+        // Copia del estado original para posible rollback
+        const originalTasks = [...project.tasks];
+    
+        // 1. Actualización optimista
+        const newTasks = [...project.tasks];
+        const [movedTask] = newTasks.splice(result.source.index, 1);
+        newTasks.splice(result.destination.index, 0, movedTask);
         
-        // Lógica para actualizar el orden en backend
-        const reorderedTasks = Array.from(project.tasks);
-        const [movedTask] = reorderedTasks.splice(result.source.index, 1);
-        reorderedTasks.splice(result.destination.index, 0, movedTask);
-
-        // Actualizar orden en base de datos
-        axios.post(route('tasks.reorder', project.id), {
-            tasks: reorderedTasks.map((task, index) => ({
-                id: task.id,
-                order: index + 1
-            }))
-        });
+        setProject(prev => ({ ...prev, tasks: newTasks }));
+    
+        try {
+            // 2. Enviar al backend
+            const response = await axios.post(route('tasks.reorder', project.id), {
+                tasks: newTasks.map((task, index) => ({
+                    id: task.id,
+                    order: index + 1
+                }))
+            });
+    
+            // 3. Sincronizar con la respuesta del backend
+            setProject(prev => ({
+                ...prev,
+                tasks: response.data.tasks
+            }));
+    
+        } catch (error) {
+            // Rollback en caso de error
+            setProject(prev => ({ ...prev, tasks: originalTasks }));
+            toast.error('Error al guardar el nuevo orden');
+        }
     };
 
     return (
@@ -120,7 +142,16 @@ export default function ProjectShow() {
                     {/* Listado de tareas con drag-and-drop */}
                     <DragDropContext onDragEnd={handleDragEnd}>
                         <Droppable droppableId="tasks">
-                            {(provided) => (
+                            {(provided, snapshot) => (
+                                <motion.div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.2 }}
+                                    className={snapshot.isDragging ? 'bg-blue-50' : 'bg-white'}
+                                >
                                 <div
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
@@ -150,7 +181,10 @@ export default function ProjectShow() {
                                                                 </span>
                                                                 <h3 className="font-medium">{task.title}</h3>
                                                             </div>
-                                                            
+                                                            <div className='flex items-center gap-2 mb-2'>
+                                                                <span className="text-sm text-gray-700">Descripción:</span>
+                                                                <span className="text-sm text-gray-600">{task.description}</span>
+                                                            </div>
                                                             <div className="flex items-center gap-4 text-sm text-gray-600">
                                                                 <Link
                                                                     href={route('tasks.show', [project.id, task.id])}
@@ -168,7 +202,7 @@ export default function ProjectShow() {
                                                                 )}
                                                                 
                                                                 <div className="flex items-center gap-1">
-                                                                    👥 {task.users.map(user => user.name).join(', ')}
+                                                                    👥 {task.users?.map(user => user.name).join(', ') || 'Sin asignar'}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -191,7 +225,8 @@ export default function ProjectShow() {
                                     ))}
                                     {provided.placeholder}
                                 </div>
-                            )}
+                            </motion.div>
+                        )}
                         </Droppable>
                     </DragDropContext>
                 </div>

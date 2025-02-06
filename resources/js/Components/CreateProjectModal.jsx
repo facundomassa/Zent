@@ -105,6 +105,7 @@ export default function CreateProjectModal({ team, isOpen, onClose }) {
                                     <div className="flex justify-end gap-3 mt-6">
                                         <button
                                             type="button"
+                                            as="button"
                                             onClick={onClose}
                                             className="px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-100"
                                         >
@@ -112,6 +113,7 @@ export default function CreateProjectModal({ team, isOpen, onClose }) {
                                         </button>
                                         <button
                                             type="submit"
+                                            as="button"
                                             disabled={processing}
                                             className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50"
                                         >

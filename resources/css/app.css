@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Toast personalizado */
+.toast {
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.toast-success {
+    border-left: 4px solid #3B82F6;
+}
+
+.toast-error {
+    border-left: 4px solid #EF4444;
+}

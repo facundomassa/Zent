@@ -25,6 +25,7 @@ export default function ProjectIndex({ team, projects }) {
                         </div>
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
+                            as="button"
                             className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
                         >
                             Nuevo Proyecto
@@ -73,6 +74,7 @@ export default function ProjectIndex({ team, projects }) {
                                                 team: team.id,
                                                 project: project.id
                                             })}
+                                            as="button"
                                             method="delete"
                                             className="text-sm text-red-500 hover:text-red-700"
                                             onBefore={() => confirm('¿Seguro que quieres eliminar este proyecto?')}

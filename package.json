@@ -22,8 +22,10 @@
     },
     "dependencies": {
         "@inertiajs/inertia": "^0.11.1",
+        "framer-motion": "^12.4.0",
         "laravel-echo": "^1.19.0",
         "pusher-js": "^8.4.0",
-        "react-beautiful-dnd": "^13.1.1"
+        "react-beautiful-dnd": "^13.1.1",
+        "react-hot-toast": "^2.5.1"
     }
 }
