@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,45 +22,51 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('Profile/Edit', [
-            'auth' => [
-                'user' => auth()->user()
-            ],
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
+        $user = Auth::user();
+
+        return inertia("Profile/Edit", [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'bio' => $user->bio,
+                'phone' => $user->phone
+            ]
         ]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(Request $request)
+    public function update(ProfileUpdateRequest $request)
     {
         $user = Auth::user();
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'bio' => ['nullable', 'string', 'max:500'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'bio' => 'nullable|string|max:500',
+            'phone' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
-
-        // Actualizar avatar si se proporcionó
+        
+        // Manejo del avatar
         if ($request->hasFile('avatar')) {
             // Eliminar avatar anterior si existe
             if ($user->avatar) {
-                Storage::delete($user->avatar);
+                Storage::disk('public')->deleteDirectory(dirname($user->avatar));
             }
             
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $validated['avatar'] = Storage::url($path);
+            $data['avatar'] = $request->file('avatar')->store(
+                'avatars/' . Str::random(), 'public'
+            );
         }
-
-        // Actualizar otros campos
-        $user->update($validated);
-
-        return redirect()->back()->with('success', 'Perfil actualizado exitosamente');
+        
+        $user->update($data);
+        // dd($data);
+        return redirect()->route('profile.edit')
+            ->with('success', 'Perfil actualizado exitosamente');
     }
 
     /**
