@@ -23,8 +23,8 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (\Swift_TransportException $e) {
+            Log::error('Error de correo: ' . $e->getMessage());
         });
     }
 }

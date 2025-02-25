@@ -48,6 +48,9 @@ export default function AuthenticatedLayout({ header, children }) {
                             <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                 Dashboard
                             </NavLink>
+                            <NavLink href={route('teams.index')} active={route().current('teams.*')}>
+                                Equipos
+                            </NavLink>
 
                             {/* Dropdown de Usuario */}
                             <div className="relative ml-3">

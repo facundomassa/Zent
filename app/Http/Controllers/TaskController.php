@@ -18,7 +18,7 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'assignees' => 'array'
         ]);
-        dd('jola');
+        
         $task = DB::transaction(function () use ($project, $request) {
             $task = $project->tasks()->create([
                 'title' => $request->title,

@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         
         // Obtener proyectos del equipo del usuario
-        $projects = $user->team->projects()->with('tasks')->latest()->get();
+        $projects = $user->team ?$user->team->projects()->with('tasks')->latest()->get() : [];
 
         // Obtener tareas asignadas al usuario
         $assignedTasks = $user->tasks()
@@ -21,7 +21,7 @@ class DashboardController extends Controller
             ->where('status', '!=', 'completada')
             ->orderBy('due_date')
             ->get();
-        // dd($user);
+            
         return Inertia::render('Dashboard/Index', [
             'projects' => $projects,
             'assignedTasks' => $assignedTasks,

@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamInvitationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,11 +31,18 @@ require __DIR__.'/auth.php';
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->middleware('guest')
+    ->name('register');
+
+Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest');
+
+Route::get('/team-invitations/{token}/accept', [TeamInvitationController::class, 'accept'])->name('team-invitations.accept');
 
 // Rutas autenticadas
 Route::middleware(['web', 'auth', 'verified'])->group(function () {
@@ -45,11 +54,14 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::redirect('/', '/dashboard');
 
     // Equipos
-    Route::prefix('teams')->group(function () {
-        Route::get('/', [TeamController::class, 'index'])->name('teams.index');
-        Route::post('/', [TeamController::class, 'store'])->name('teams.store');
-        Route::get('/{team}', [TeamController::class, 'show'])->name('teams.show');
+    Route::resource('teams', TeamController::class);
+    Route::prefix('teams/{team}')->group(function () {
+        Route::put('/members/{user}/role', [TeamController::class, 'updateRole'])->name('teams.update-role');
+        Route::delete('/members/{user}', [TeamController::class, 'removeMember'])->name('teams.remove-member');
     });
+
+    Route::post('/invite/{team}', [TeamInvitationController::class, 'invite'])->name('teams.invite');
+    Route::delete('/team-invitations/{invitation}', [TeamInvitationController::class, 'destroy'])->name('team-invitations.destroy');
 
     // Proyectos (dentro de un equipo)
     Route::prefix('teams/{team}/projects')->group(function () {
@@ -91,4 +103,10 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // routes/web.php
+    Route::get('/test-email', function () {
+        $invitation = App\Models\TeamInvitation::first();
+        return new App\Mail\TeamInvitationMail($invitation);
+    });
 });

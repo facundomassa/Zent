@@ -19,12 +19,39 @@ class Team extends Model
         return $this->hasMany(Project::class);
     }
 
+    public function getMembersCountAttribute()
+    {
+        return $this->members()->count();
+    }
+
+    public function getProjectsCountAttribute()
+    {
+        return $this->projects()->count();
+    }
+
     public function subscription() {
         return $this->hasOne(Subscription::class);
     }
 
+    public function invitations()
+    {
+        return $this->hasMany(TeamInvitation::class);
+    }
+
     public function isAdmin(User $user)
     {
-        return $this->user_id === $user->id;
+        return $this->owner_id === $user->id;
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }
